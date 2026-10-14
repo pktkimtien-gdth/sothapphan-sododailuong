@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Du Hành Vũ Trụ: Chinh Phục Số Thập Phân</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #0f172a; /* Deep space blue */
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 20px 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #f8fafc;
+        }
+
+        /* Glassmorphism phong cách phi thuyền */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5), inset 0 0 0 2px rgba(255,255,255,0.1);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .btn-pixar {
+            background: linear-gradient(to bottom, #38bdf8, #2563eb);
+            color: white;
+            border-radius: 999px;
+            box-shadow: 0 6px 0 #1e3a8a, 0 10px 15px rgba(0,0,0,0.3);
+            transition: all 0.1s;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+        .btn-pixar:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0 #1e3a8a, 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .btn-pixar:disabled {
+            background: linear-gradient(to bottom, #64748b, #475569);
+            box-shadow: 0 6px 0 #334155;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            color: white;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            border-color: #38bdf8;
+            box-shadow: 0 6px 12px rgba(56, 189, 248, 0.2);
+            background: rgba(56, 189, 248, 0.1);
+        }
+        .option-btn.correct {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #22c55e;
+            color: #4ade80;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.4);
+        }
+        .option-btn.wrong {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: #ef4444;
+            color: #f87171;
+        }
+        .option-btn.selected {
+            border-color: #a855f7;
+            background: rgba(168, 85, 247, 0.2);
+            transform: scale(1.02);
+        }
+
+        /* Match Question Styling */
+        .match-col {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Input styling */
+        .input-fill {
+            background: rgba(15, 23, 42, 0.6);
+            color: white;
+            border: 2px solid #38bdf8;
+            text-align: center;
+        }
+        .input-fill:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .floating { animation: float 4s ease-in-out infinite; }
+        
+        @keyframes bounce-in {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+        .animate-bounce-in { animation: bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        .svg-astronaut {
+            width: 140px;
+            height: 140px;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));
+        }
+
+        /* Toán học - Fraction styling */
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 0.1rem;
+            font-size: 0.85em;
+            line-height: 1.2;
+        }
+        .frac .num {
+            border-bottom: 2px solid currentColor;
+            padding: 0 0.2rem;
+        }
+        .frac .den {
+            padding: 0 0.2rem;
+        }
+        .mix {
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+        }
+        .mix-int {
+            margin-right: 0.1rem;
+        }
+
+        /* Hiệu ứng AI đang suy nghĩ */
+        .typing-indicator::after {
+            content: '.';
+            animation: typing 1.5s infinite steps(4, end);
+        }
+        @keyframes typing {
+            0%, 100% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+        }
+
+        .hidden-screen { display: none !important; }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+
+    <div id="start-screen" class="glass-panel w-full max-w-lg p-8 flex flex-col items-center animate-bounce-in text-center relative overflow-hidden">
+        <!-- Trang trí vũ trụ -->
+        <div class="absolute top-4 left-4 text-4xl opacity-50 floating" style="animation-delay: 1s;">✨</div>
+        <div class="absolute bottom-10 right-8 text-5xl opacity-30 floating" style="animation-delay: 2s;">🪐</div>
+        <div class="absolute top-1/2 left-4 text-3xl opacity-40 floating" style="animation-delay: 0.5s;">☄️</div>
+        
+        <div class="mb-4 floating">
+            <svg class="svg-astronaut" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Lửa đẩy -->
+                <path d="M 80 150 Q 100 190 120 150 Z" fill="#ef4444" />
+                <path d="M 90 150 Q 100 175 110 150 Z" fill="#f59e0b" />
+                <!-- Thân phi thuyền -->
+                <path d="M 100 20 Q 140 60 130 140 L 70 140 Q 60 60 100 20 Z" fill="#f1f5f9" />
+                <path d="M 100 20 Q 140 60 130 140 L 70 140 Q 60 60 100 20 Z" fill="url(#gradient)" opacity="0.3" />
+                <!-- Cánh -->
+                <path d="M 70 110 L 40 140 L 70 140 Z" fill="#38bdf8" />
+                <path d="M 130 110 L 160 140 L 130 140 Z" fill="#38bdf8" />
+                <!-- Cửa sổ kính -->
+                <circle cx="100" cy="80" r="20" fill="#1e293b" stroke="#38bdf8" stroke-width="4" />
+                <circle cx="105" cy="75" r="5" fill="#bae6fd" opacity="0.8" />
+                <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="white" />
+                        <stop offset="100%" stop-color="black" />
+                    </linearGradient>
+                </defs>
+            </svg>
+        </div>
+
+        <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2">
+            Hành Trình Phi Hành Gia
+        </h1>
+        <h2 class="text-xl font-bold text-purple-400 mb-6 tracking-wide">Giải Mã Dải Ngân Hà Thập Phân</h2>
+        
+        <div class="w-full mb-6 relative z-10">
+            <label class="block text-left font-bold mb-2 text-slate-300">Tên của Phi hành gia:</label>
+            <input type="text" id="player-name" placeholder="Ví dụ: Neil Armstrong" class="w-full px-4 py-3 rounded-xl bg-slate-800 border-2 border-slate-600 focus:border-cyan-400 focus:outline-none text-lg font-bold text-center text-white placeholder-slate-500 transition-colors">
+        </div>
+
+        <button onclick="startGame()" class="btn-pixar w-full py-4 text-2xl font-black uppercase tracking-wider relative z-10">
+            Khởi hành! 🚀
+        </button>
+        
+        <div class="mt-6 text-sm font-semibold text-slate-300 bg-slate-800/50 p-4 rounded-xl border border-slate-700">
+            👩‍🚀 <span class="text-cyan-400">Cô Nhung Chỉ Huy:</span> "Chào mừng con gia nhập hạm đội! Vượt qua 20 thử thách để thu thập các Ngôi sao nhé!"
+        </div>
+    </div>
+
+    <div id="game-screen" class="glass-panel w-full max-w-2xl p-6 md:p-8 flex flex-col hidden-screen relative">
+        <!-- Header: Stats -->
+        <div class="flex justify-between items-center mb-6 bg-slate-800/60 p-3 rounded-2xl border border-slate-700">
+            <div class="flex items-center gap-2 font-bold text-lg text-cyan-400">
+                🚀 <span id="display-name">Người chơi</span>
+            </div>
+            <div class="flex items-center gap-2 font-black text-2xl text-yellow-400">
+                ⭐ <span id="score">0</span>
+            </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-2 flex justify-between text-sm font-bold text-slate-400">
+            <span id="level-badge" class="px-2 py-1 bg-green-900/50 text-green-400 border border-green-700/50 rounded-lg">Mức 1: Quỹ Đạo Thấp</span>
+            <span id="question-counter">Trạm 1/20</span>
+        </div>
+        <div class="w-full bg-slate-700 rounded-full h-3 mb-6 overflow-hidden">
+            <div id="progress-bar" class="bg-gradient-to-r from-cyan-400 to-purple-500 h-3 rounded-full transition-all duration-300 w-0 shadow-[0_0_10px_rgba(56,189,248,0.5)]"></div>
+        </div>
+
+        <!-- Timer -->
+        <div class="flex items-center justify-center mb-6">
+            <div class="relative w-20 h-20 flex items-center justify-center bg-slate-800 rounded-full shadow-[0_0_15px_rgba(0,0,0,0.5)] border-4 border-slate-700">
+                <span id="timer-text" class="text-3xl font-black text-white">20</span>
+                <svg class="absolute top-0 left-0 w-full h-full transform -rotate-90">
+                    <circle cx="36" cy="36" r="36" transform="translate(4,4)" stroke="transparent" stroke-width="4" fill="none"></circle>
+                    <circle id="timer-circle" cx="36" cy="36" r="36" transform="translate(4,4)" stroke="#38bdf8" stroke-width="4" fill="none" stroke-dasharray="226" stroke-dashoffset="0" class="transition-all duration-1000 linear"></circle>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Question -->
+        <div class="bg-slate-800/80 p-6 rounded-2xl shadow-sm mb-6 border border-slate-600 text-center min-h-[100px] flex items-center justify-center">
+            <h3 id="question-text" class="text-xl md:text-2xl font-bold text-white leading-relaxed">Câu hỏi sẽ hiện ở đây</h3>
+        </div>
+
+        <!-- Dynamic Interaction Container -->
+        <div id="interaction-container" class="w-full">
+            <!-- Render via JS based on type -->
+        </div>
+    </div>
+
+    <div id="feedback-modal" class="fixed inset-0 bg-black/70 backdrop-blur-md z-50 hidden-screen flex items-center justify-center p-4">
+        <div class="bg-slate-800 rounded-3xl p-6 md:p-8 max-w-md w-full animate-bounce-in shadow-[0_0_30px_rgba(56,189,248,0.3)] relative border-2 border-cyan-500">
+            <!-- Cô Nhung Avatar -->
+            <div class="absolute -top-6 -right-6 w-20 h-20 bg-slate-900 rounded-full flex items-center justify-center text-4xl border-4 border-cyan-500 shadow-lg floating">
+                👩‍🚀
+            </div>
+            
+            <div class="pr-12 mb-4">
+                <h2 id="feedback-title" class="text-2xl font-black mb-1 text-white">Tuyệt vời!</h2>
+                <p id="feedback-subtitle" class="text-sm font-bold text-slate-400">Phi hành gia nhận được 10 ngôi sao!</p>
+            </div>
+
+            <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-700 mb-6 shadow-inner">
+                <p id="feedback-explanation" class="text-slate-300 font-semibold leading-relaxed">
+                    Lời giải thích của cô Nhung...
+                </p>
+            </div>
+
+            <button onclick="nextQuestion()" id="next-btn" class="btn-pixar w-full py-3 text-xl font-bold uppercase tracking-wide">
+                Tiếp tục hành trình ➡️
+            </button>
+        </div>
+    </div>
+
+    <div id="end-screen" class="glass-panel w-full max-w-lg p-8 flex flex-col items-center hidden-screen animate-bounce-in">
+        <div class="text-6xl mb-4 floating">🏆</div>
+        <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-500 mb-2 text-center drop-shadow-md">
+            Hoàn Thành Sứ Mệnh
+        </h1>
+        
+        <div class="bg-slate-800/80 p-6 rounded-2xl w-full text-center border border-slate-600 mb-6 shadow-lg">
+            <p class="text-lg font-bold text-slate-400 mb-1">Thành tích của</p>
+            <p id="final-player-name" class="text-2xl font-black text-cyan-400 mb-2">Tên</p>
+            <div class="flex items-center justify-center gap-2 text-5xl font-black text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">
+                ⭐ <span id="final-score">0</span>
+            </div>
+            <p id="final-message" class="mt-4 text-green-400 font-bold">Cô Nhung rất tự hào về con!</p>
+        </div>
+
+        <!-- Leaderboard -->
+        <div class="w-full bg-slate-900/50 rounded-2xl p-4 border border-slate-700 mb-6">
+            <h3 class="text-center font-bold text-slate-300 mb-4 flex items-center justify-center gap-2 uppercase tracking-wider text-sm">
+                📋 Bảng Vàng Dải Ngân Hà
+            </h3>
+            <div id="leaderboard-list" class="space-y-3 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
+                <!-- JS Render -->
+            </div>
+        </div>
+
+        <button onclick="location.reload()" class="btn-pixar w-full py-3 text-xl font-bold uppercase tracking-wider">
+            🔄 Chơi lại từ đầu
+        </button>
+    </div>
+
+    <script>
+        // Cơ sở dữ liệu câu hỏi (ĐA DẠNG HÌNH THỨC, KHÔNG CÓ PHÉP TÍNH + - * /)
+        const questions = [
+            // MỨC 1: Quỹ đạo thấp (20s) - Nhận biết, Đọc viết, So sánh cơ bản
+            { level: 1, type: 'mcq', time: 20, q: "Hỗn số {{3 7/10}} được viết thành số thập phân là:", options: ["3,07", "3,7", "37,0", "0,37"], correct: 1, exp: "Hỗn số có phần nguyên là 3, phần phân số là {{7/10}}. Viết thành số thập phân ta giữ nguyên phần nguyên 3, phẩy một cái rồi viết phần phân số 7 ở hàng phần mười. Kết quả là 3,7." },
+            { level: 1, type: 'fill', time: 20, q: "Cho số thập phân 45,098. Phần nguyên của số này là bao nhiêu?", correctAnswers: ["45"], exp: "Trong số thập phân, phần đứng trước dấu phẩy gọi là phần nguyên. Do đó phần nguyên của 45,098 là 45." },
+            { level: 1, type: 'mcq', time: 20, q: "Điền dấu thích hợp vào chỗ trống: 12,050 ... 12,05", options: [">", "<", "=", "Không so sánh được"], correct: 2, exp: "Số thập phân khi thêm hoặc bớt các chữ số 0 ở tận cùng bên phải phần thập phân thì giá trị không thay đổi. Vậy 12,050 = 12,05." },
+            { level: 1, type: 'match', time: 30, q: "Hãy ghép phân số thập phân với số thập phân tương ứng:", pairs: [ { left: "{{5/10}}", right: "0,5" }, { left: "{{25/100}}", right: "0,25" }, { left: "{{8/1000}}", right: "0,008" } ], exp: "Để chuyển phân số thập phân thành số thập phân, ta đếm số chữ số 0 ở mẫu. Ví dụ mẫu có ba số 0 (1000) thì phần thập phân có 3 chữ số, {{8/1000}} = 0,008." },
+            { level: 1, type: 'mcq', time: 20, q: "Số thập phân nào LỚN NHẤT trong các số sau?", options: ["7,8", "7,08", "7,801", "7,081"], correct: 2, exp: "Các số đều có phần nguyên là 7. So sánh hàng phần mười: 8 > 0 nên loại 7,08 và 7,081. So sánh tiếp 7,8 (tức 7,800) và 7,801 ở hàng phần nghìn: 1 > 0. Vậy 7,801 lớn nhất!" },
+            
+            // MỨC 2: Tầng Ozon (30s) - Đổi đơn vị khối lượng, độ dài qua Hỗn số
+            { level: 2, type: 'fill', time: 30, q: "Nhập số thập phân thích hợp: 4 kg 50 g = ... kg", correctAnswers: ["4,05", "4.05"], exp: "Vì 1kg = 1000g nên 50g = {{50/1000}} kg. Ta có hỗn số {{4 50/1000}} kg. Chuyển thành số thập phân ta được 4,050 kg hay viết gọn là 4,05 kg." },
+            { level: 2, type: 'mcq', time: 30, q: "Đoạn đường dài 12 km 5 m. Viết dưới dạng số thập phân có đơn vị là km là:", options: ["12,5 km", "12,05 km", "12,005 km", "125 km"], correct: 2, exp: "Ta đổi ra hỗn số: 12 km 5 m = {{12 5/1000}} km. Viết ra số thập phân ta cần 3 chữ số ở phần thập phân, kết quả là 12,005 km." },
+            { level: 2, type: 'match', time: 40, q: "Ghép nối các số đo độ dài bằng nhau:", pairs: [ { left: "6m 7cm", right: "6,07m" }, { left: "6m 70cm", right: "6,7m" }, { left: "6m 7mm", right: "6,007m" } ], exp: "Ta đổi qua hỗn số: 6m 7cm = {{6 7/100}}m = 6,07m. 6m 70cm = {{6 70/100}}m = 6,7m. 6m 7mm = {{6 7/1000}}m = 6,007m." },
+            { level: 2, type: 'mcq', time: 30, q: "2 tấn 34 kg = ... tấn? Số cần điền là:", options: ["2,34", "2,034", "2,0034", "234"], correct: 1, exp: "1 tấn = 1000 kg. Vậy 34 kg = {{34/1000}} tấn. Hỗn số là {{2 34/1000}} tấn. Chuyển thành số thập phân là 2,034 tấn." },
+            { level: 2, type: 'fill', time: 30, q: "Hỗn số {{15 3/100}} m được viết dưới dạng số thập phân là ... m. (Nhập số)", correctAnswers: ["15,03", "15.03"], exp: "Phần nguyên là 15. Phần phân số là {{3/100}} (tương ứng hàng phần trăm). Viết thành số thập phân là 15,03 m." },
+            { level: 2, type: 'mcq', time: 30, q: "Sắp xếp độ dài phi thuyền từ BÉ đến LỚN: 2,5m ; 2m 5cm ; 2,055m", options: ["2m 5cm ; 2,055m ; 2,5m", "2m 5cm ; 2,5m ; 2,055m", "2,055m ; 2m 5cm ; 2,5m", "2,5m ; 2,055m ; 2m 5cm"], correct: 0, exp: "Đổi 2m 5cm = {{2 5/100}} m = 2,05m. Ta so sánh: 2,05 < 2,055 < 2,5. Vậy thứ tự đúng là: 2m 5cm ; 2,055m ; 2,5m." },
+            { level: 2, type: 'fill', time: 30, q: "Khối lượng một viên đá thiên thạch là 3500 g. Đổi ra ki-lô-gam ta được ... kg. (Nhập số)", correctAnswers: ["3,5", "3.5"], exp: "3500 g = 3000 g + 500 g = 3 kg 500 g. Đổi ra hỗn số: {{3 500/1000}} kg. Viết thành số thập phân là 3,500 kg hay 3,5 kg." },
+
+            // MỨC 3: Không Gian Sâu (40s) - Nâng cao, tư duy
+            { level: 3, type: 'mcq', time: 40, q: "Tìm số thập phân x biết: 5,6 < x < 5,7 (Biết x có 2 chữ số ở phần thập phân)", options: ["5,60", "5,71", "5,65", "5,06"], correct: 2, exp: "Để dễ so sánh, ta thêm chữ số 0: 5,60 < x < 5,70. Số nằm giữa có thể là 5,61; 5,62... đến 5,69. Trong đáp án chỉ có 5,65 là thỏa mãn!" },
+            { level: 3, type: 'fill', time: 40, q: "Đổi đơn vị: 5km 2m = ... km. (Nhập số thập phân)", correctAnswers: ["5,002", "5.002"], exp: "Vì 1km = 1000m nên 2m = {{2/1000}} km. Ta có hỗn số {{5 2/1000}} km. Chuyển sang số thập phân là 5,002 km." },
+            { level: 3, type: 'match', time: 45, q: "Ghép các khối lượng của các kiện hàng sao cho bằng nhau:", pairs: [ { left: "3kg 500g", right: "3,5kg" }, { left: "3kg 5g", right: "3,005kg" }, { left: "3kg 50g", right: "3,05kg" } ], exp: "Đổi qua hỗn số: 3kg 500g = {{3 500/1000}}kg = 3,5kg. 3kg 50g = {{3 50/1000}}kg = 3,05kg. 3kg 5g = {{3 5/1000}}kg = 3,005kg." },
+            { level: 3, type: 'mcq', time: 40, q: "Khẳng định nào sau đây là SAI?", options: ["12m 5dm = 12,5m", "3kg 5g = 3,5kg", "7km 20m = 7,02km", "2 tấn 50kg = 2,05 tấn"], correct: 1, exp: "Câu 3kg 5g = 3,5kg là SAI. Vì 3kg 5g = {{3 5/1000}} kg = 3,005 kg, chứ không phải 3,5 kg (3,5 kg = 3kg 500g)." },
+            { level: 3, type: 'fill', time: 40, q: "Tìm số tự nhiên x LỚN NHẤT thỏa mãn: 12,45 < x < 15,01. (Nhập số tự nhiên)", correctAnswers: ["15"], exp: "Các số tự nhiên nằm giữa 12,45 và 15,01 là: 13, 14, 15. Số lớn nhất thỏa mãn điều kiện này chính là 15." },
+            { level: 3, type: 'mcq', time: 40, q: "Phân số {{25/4}} m viết dưới dạng số thập phân là:", options: ["25,4 m", "6,14 m", "6,25 m", "0,25 m"], correct: 2, exp: "Đổi phân số thành hỗn số: 25 chia 4 được 6 dư 1, tức {{6 1/4}} m. Quy đồng phần phân số: {{1/4}} = {{25/100}}. Hỗn số {{6 25/100}} m viết thành số thập phân là 6,25 m." },
+            { level: 3, type: 'mcq', time: 40, q: "Có 3 khối đá Mặt Trăng: Khối A nặng 5,05kg; Khối B nặng 5kg 50g; Khối C nặng 5,5kg. Khẳng định nào ĐÚNG?", options: ["Khối A nặng hơn Khối B", "Khối B và Khối C nặng bằng nhau", "Khối A và Khối B nặng bằng nhau", "Khối C nhẹ nhất"], correct: 2, exp: "Ta đưa về cùng đơn vị: Khối B = 5kg 50g = {{5 50/1000}} kg = 5,050 kg = 5,05 kg. Vậy Khối A (5,05kg) và Khối B có cân nặng bằng nhau!" },
+            { level: 3, type: 'fill', time: 40, q: "Vận tốc ánh sáng là c. Nếu phi thuyền A đi quãng đường {{3 1/2}} năm ánh sáng, hãy viết quãng đường này dưới dạng số thập phân. (Nhập số)", correctAnswers: ["3,5", "3.5"], exp: "Hỗn số {{3 1/2}}. Ta biết {{1/2}} = {{5/10}}. Nên {{3 1/2}} = {{3 5/10}}. Viết dưới dạng số thập phân là 3,5." }
+        ];
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new AudioContext();
+        }
+
+        function playSound(type) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (type === 'correct') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'wrong') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.3);
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            } else if (type === 'click') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            }
+        }
+
+        let playerName = "";
+        let score = 0;
+        let currentQIndex = 0;
+        let timeLeft = 0;
+        let timerInterval;
+        const totalQuestions = questions.length;
+        
+        // Trạng thái cho câu hỏi ghép nối
+        let matchState = {
+            leftSelected: null,
+            rightSelected: null,
+            matchedCount: 0,
+            totalPairs: 0
+        };
+
+        // Hàm format toán học
+        function formatMath(text) {
+            let res = text.replace(/\{\{(\d+)\s+(\d+)\/(\d+)\}\}/g, '<span class="mix"><span class="mix-int">$1</span><span class="frac"><span class="num">$2</span><span class="den">$3</span></span></span>');
+            res = res.replace(/\{\{(\d+)\/(\d+)\}\}/g, '<span class="frac"><span class="num">$1</span><span class="den">$2</span></span>');
+            return res;
+        }
+
+        // Bảng xếp hạng ảo
+        let leaderboard = [
+            { name: "Armstrong", score: 180 },
+            { name: "Gagarin", score: 150 },
+            { name: "Phạm Tuân", score: 120 }
+        ];
+
+        async function getAIFeedback(questionData, studentAnswerText, isCorrect, fallbackExp) {
+            const apiKey = ""; 
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const systemPrompt = `Bạn là "Cô Nhung Chỉ Huy", một nữ phi hành gia kiêm giáo viên Toán lớp 5 ảo, thân thiện, truyền cảm hứng trong trò chơi "Du Hành Vũ Trụ". Học sinh đóng vai phi hành gia thu thập ngôi sao.
+Nhiệm vụ: Giải thích ngắn gọn (2-3 câu) tại sao đáp án đúng lại đúng, hoặc phân tích nhẹ nhàng tại sao học sinh sai để các em hiểu bài.
+YÊU CẦU BẮT BUỘC VỀ ĐỊNH DẠNG TOÁN HỌC:
+- Xưng "Cô", gọi học sinh là "Phi hành gia" hoặc "con".
+- NẾU CÓ phân số, BẮT BUỘC dùng cú pháp: {{a/b}} (VD: {{3/10}}).
+- NẾU CÓ hỗn số, BẮT BUỘC dùng cú pháp: {{a b/c}} (VD: {{2 5/100}}).
+- Tuyệt đối không nhắc đến việc cộng, trừ, nhân, chia số thập phân. Chỉ giải thích dựa trên cấu tạo số, đổi đơn vị thông qua phân số thập phân/hỗn số.`;
+
+            let correctTextStr = "";
+            if(questionData.type === 'mcq') correctTextStr = questionData.options[questionData.correct];
+            else if(questionData.type === 'fill') correctTextStr = questionData.correctAnswers.join(" hoặc ");
+            else if(questionData.type === 'match') correctTextStr = "Ghép đúng tất cả các cặp.";
+
+            const userPrompt = `Câu hỏi: ${questionData.q}\nĐáp án đúng: ${correctTextStr}\nHọc sinh phản hồi: ${studentAnswerText}\nKết quả: ${isCorrect ? 'Đúng' : 'Sai'}. Hãy nhận xét, động viên và giải thích kiến thức. (Chủ đề vũ trụ, đổi đơn vị đo, so sánh số thập phân). Lời giải gốc để tham khảo (có thể viết lại cho hay hơn): ${fallbackExp}`;
+
+            const payload = {
+                contents: [{ role: "user", parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] }
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.candidates && result.candidates[0].content.parts[0].text) {
+                    return result.candidates[0].content.parts[0].text;
+                }
+                return fallbackExp;
+            } catch (error) {
+                return "Hệ thống liên lạc vũ trụ hơi yếu, Cô Nhung dùng lời giải thích chuẩn bị sẵn nhé: " + fallbackExp;
+            }
+        }
+
+        function startGame() {
+            const inputName = document.getElementById('player-name').value.trim();
+            if(!inputName) {
+                const inputEl = document.getElementById('player-name');
+                inputEl.classList.add('border-red-500');
+                setTimeout(() => inputEl.classList.remove('border-red-500'), 500);
+                return;
+            }
+            playerName = inputName;
+            initAudio();
+
+            document.getElementById('display-name').innerText = playerName;
+            score = 0;
+            currentQIndex = 0;
+            updateScoreUI();
+
+            switchScreen('start-screen', 'game-screen');
+            loadQuestion();
+        }
+
+        function switchScreen(hideId, showId) {
+            document.getElementById(hideId).classList.add('hidden-screen');
+            document.getElementById(showId).classList.remove('hidden-screen');
+        }
+
+        function loadQuestion() {
+            const qData = questions[currentQIndex];
+            
+            document.getElementById('question-counter').innerText = `Trạm ${currentQIndex + 1}/${totalQuestions}`;
+            const progressPercent = (currentQIndex / totalQuestions) * 100;
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+
+            const badge = document.getElementById('level-badge');
+            if (qData.level === 1) {
+                badge.innerText = "Mức 1: Quỹ Đạo Thấp (20s)";
+                badge.className = "px-2 py-1 bg-green-900/50 text-green-400 border border-green-700/50 rounded-lg";
+            } else if (qData.level === 2) {
+                badge.innerText = "Mức 2: Tầng Ozon (30s)";
+                badge.className = "px-2 py-1 bg-blue-900/50 text-blue-400 border border-blue-700/50 rounded-lg";
+            } else {
+                badge.innerText = "Mức 3: Không Gian Sâu (40s)";
+                badge.className = "px-2 py-1 bg-purple-900/50 text-purple-400 border border-purple-700/50 rounded-lg";
+            }
+
+            document.getElementById('question-text').innerHTML = formatMath(qData.q);
+
+            const container = document.getElementById('interaction-container');
+            container.innerHTML = "";
+
+            if (qData.type === 'mcq') {
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 md:grid-cols-2 gap-4";
+                qData.options.forEach((opt, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = "option-btn w-full p-4 text-lg font-bold text-center cursor-pointer";
+                    btn.innerHTML = formatMath(opt);
+                    btn.onclick = () => processAnswer(index, 'mcq');
+                    grid.appendChild(btn);
+                });
+                container.appendChild(grid);
+            } 
+            else if (qData.type === 'fill') {
+                const wrap = document.createElement('div');
+                wrap.className = "flex flex-col items-center gap-4";
+                const input = document.createElement('input');
+                input.type = "text";
+                input.id = "fill-input";
+                input.autocomplete = "off";
+                input.className = "input-fill w-full max-w-xs p-4 rounded-xl text-2xl font-bold transition-all";
+                input.placeholder = "Nhập đáp án...";
+                
+                const btn = document.createElement('button');
+                btn.className = "btn-pixar w-full max-w-xs py-3 text-xl font-bold";
+                btn.innerText = "Gửi tín hiệu 📡";
+                btn.onclick = () => {
+                    if(input.value.trim() !== "") processAnswer(input.value, 'fill');
+                };
+                
+                // Hỗ trợ Enter
+                input.addEventListener("keypress", function(event) {
+                    if (event.key === "Enter") btn.click();
+                });
+
+                wrap.appendChild(input);
+                wrap.appendChild(btn);
+                container.appendChild(wrap);
+                setTimeout(() => input.focus(), 100);
+            }
+            else if (qData.type === 'match') {
+                matchState = { leftSelected: null, rightSelected: null, matchedCount: 0, totalPairs: qData.pairs.length };
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-2 gap-4";
+                
+                const leftCol = document.createElement('div');
+                leftCol.className = "match-col";
+                const rightCol = document.createElement('div');
+                rightCol.className = "match-col";
+
+                // Shuffle right items
+                let rightItems = qData.pairs.map((p, i) => ({ text: p.right, id: i }));
+                rightItems = rightItems.sort(() => Math.random() - 0.5);
+
+                qData.pairs.forEach((p, i) => {
+                    // Left button
+                    const btnL = document.createElement('button');
+                    btnL.className = "option-btn p-3 text-md font-bold";
+                    btnL.innerHTML = formatMath(p.left);
+                    btnL.id = `match-l-${i}`;
+                    btnL.onclick = () => handleMatchClick('left', i, btnL);
+                    leftCol.appendChild(btnL);
+                });
+
+                rightItems.forEach((r) => {
+                    // Right button
+                    const btnR = document.createElement('button');
+                    btnR.className = "option-btn p-3 text-md font-bold";
+                    btnR.innerHTML = formatMath(r.text);
+                    btnR.id = `match-r-${r.id}`;
+                    btnR.onclick = () => handleMatchClick('right', r.id, btnR);
+                    rightCol.appendChild(btnR);
+                });
+
+                grid.appendChild(leftCol);
+                grid.appendChild(rightCol);
+                container.appendChild(grid);
+            }
+
+            startTimer(qData.time);
+        }
+
+        function startTimer(seconds) {
+            clearInterval(timerInterval);
+            timeLeft = seconds;
+            const fullTime = seconds;
+            updateTimerUI(fullTime);
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerUI(fullTime);
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    processAnswer(null, 'timeout');
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI(fullTime) {
+            document.getElementById('timer-text').innerText = timeLeft;
+            const circumference = 226;
+            const offset = circumference - (timeLeft / fullTime) * circumference;
+            document.getElementById('timer-circle').style.strokeDashoffset = offset;
+            
+            const timerText = document.getElementById('timer-text');
+            const timerCircle = document.getElementById('timer-circle');
+            if (timeLeft <= 5) {
+                timerText.classList.add('text-red-500');
+                timerCircle.setAttribute('stroke', '#ef4444');
+            } else {
+                timerText.classList.remove('text-red-500');
+                timerCircle.setAttribute('stroke', '#38bdf8');
+            }
+        }
+
+        function handleMatchClick(side, id, element) {
+            if(element.disabled) return;
+            playSound('click');
+
+            // Bỏ chọn cũ cùng cột
+            const colPrefix = side === 'left' ? 'match-l-' : 'match-r-';
+            const qData = questions[currentQIndex];
+            
+            for(let i=0; i<qData.pairs.length; i++) {
+                const el = document.getElementById(`${colPrefix}${i}`);
+                if(el && !el.disabled) el.classList.remove('selected');
+            }
+
+            element.classList.add('selected');
+            if(side === 'left') matchState.leftSelected = { id, el: element };
+            else matchState.rightSelected = { id, el: element };
+
+            // Kiểm tra nếu chọn đủ 2 bên
+            if(matchState.leftSelected && matchState.rightSelected) {
+                const l = matchState.leftSelected;
+                const r = matchState.rightSelected;
+                
+                if(l.id === r.id) {
+                    // Đúng
+                    l.el.classList.remove('selected'); r.el.classList.remove('selected');
+                    l.el.classList.add('correct'); r.el.classList.add('correct');
+                    l.el.disabled = true; r.el.disabled = true;
+                    playSound('correct');
+                    
+                    matchState.matchedCount++;
+                    matchState.leftSelected = null; matchState.rightSelected = null;
+
+                    if(matchState.matchedCount === matchState.totalPairs) {
+                        setTimeout(() => processAnswer(true, 'match_success'), 500);
+                    }
+                } else {
+                    // Sai
+                    l.el.classList.remove('selected'); r.el.classList.remove('selected');
+                    l.el.classList.add('wrong'); r.el.classList.add('wrong');
+                    playSound('wrong');
+                    
+                    const leftText = qData.pairs[l.id].left;
+                    const rightText = qData.pairs[r.id].right;
+                    
+                    // Delay chút để nhìn thấy màu đỏ rồi kết thúc câu hỏi
+                    setTimeout(() => processAnswer({leftText, rightText}, 'match_fail'), 600);
+                }
+            }
+        }
+
+        async function processAnswer(answerData, answerType) {
+            clearInterval(timerInterval); // Dừng timer
+            const qData = questions[currentQIndex];
+            let isCorrect = false;
+            let studentAnswerLog = "";
+
+            // Vô hiệu hóa giao diện
+            const container = document.getElementById('interaction-container');
+            const allBtns = container.querySelectorAll('button, input');
+            allBtns.forEach(btn => btn.disabled = true);
+
+            // Kiểm tra tính đúng đắn tùy theo loại
+            if (answerType === 'timeout') {
+                isCorrect = false;
+                studentAnswerLog = "Hết giờ (không có đáp án)";
+            } 
+            else if (qData.type === 'mcq') {
+                isCorrect = (answerData === qData.correct);
+                studentAnswerLog = qData.options[answerData];
+                
+                // Highlight kết quả MCQ
+                const btns = container.querySelectorAll('.option-btn');
+                btns[qData.correct].classList.add('correct');
+                if(!isCorrect) btns[answerData].classList.add('wrong');
+            } 
+            else if (qData.type === 'fill') {
+                const stdAns = answerData.trim().toLowerCase();
+                isCorrect = qData.correctAnswers.some(ans => ans.toLowerCase() === stdAns);
+                studentAnswerLog = stdAns;
+                
+                const inputEl = document.getElementById('fill-input');
+                if(isCorrect) {
+                    inputEl.classList.remove('border-38bdf8');
+                    inputEl.classList.add('border-green-500', 'bg-green-900/50', 'text-green-400');
+                } else {
+                    inputEl.classList.remove('border-38bdf8');
+                    inputEl.classList.add('border-red-500', 'bg-red-900/50', 'text-red-400');
+                }
+            }
+            else if (answerType === 'match_success') {
+                isCorrect = true;
+                studentAnswerLog = "Học sinh đã ghép đúng tất cả các cặp.";
+            }
+            else if (answerType === 'match_fail') {
+                isCorrect = false;
+                studentAnswerLog = `Học sinh ghép sai cặp: ${answerData.leftText} đi với ${answerData.rightText}`;
+            }
+
+            // Tính điểm
+            let feedbackTitle = "";
+            let feedbackSub = "";
+            if (isCorrect) {
+                playSound('correct');
+                const points = qData.level * 10;
+                score += points;
+                updateScoreUI();
+                feedbackTitle = "Tuyệt vời quá! 🎉";
+                feedbackSub = `Phi hành gia nhận được ${points} ngôi sao ⭐`;
+            } else {
+                if(answerType !== 'match_fail') playSound('wrong'); // Match fail played sound inside handle
+                feedbackTitle = answerType === 'timeout' ? "Hết năng lượng! ⏰" : "Chưa chính xác rồi! 😢";
+                feedbackSub = "Cùng nghe Cô Nhung phân tích nhé.";
+            }
+
+            // Hiển thị modal chờ AI
+            document.getElementById('next-btn').disabled = true;
+            document.getElementById('next-btn').classList.add('opacity-50', 'cursor-not-allowed');
+            showFeedback(feedbackTitle, feedbackSub, "<span class='typing-indicator font-bold text-cyan-400'>Trung tâm Vũ trụ AI đang phân tích dữ liệu</span>", isCorrect);
+
+            // Gọi AI
+            const aiExplanation = await getAIFeedback(qData, studentAnswerLog, isCorrect, qData.exp);
+
+            // Cập nhật Modal
+            document.getElementById('feedback-explanation').innerHTML = formatMath(aiExplanation);
+            document.getElementById('next-btn').disabled = false;
+            document.getElementById('next-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        function updateScoreUI() {
+            document.getElementById('score').innerText = score;
+        }
+
+        function showFeedback(title, sub, exp, isCorrect) {
+            const titleEl = document.getElementById('feedback-title');
+            titleEl.innerText = title;
+            titleEl.className = `text-2xl font-black mb-1 ${isCorrect ? 'text-green-400' : 'text-yellow-400'}`;
+            document.getElementById('feedback-subtitle').innerText = sub;
+            document.getElementById('feedback-explanation').innerHTML = formatMath(exp);
+            document.getElementById('feedback-modal').classList.remove('hidden-screen');
+        }
+
+        function nextQuestion() {
+            document.getElementById('feedback-modal').classList.add('hidden-screen');
+            currentQIndex++;
+            
+            if (currentQIndex < totalQuestions) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function endGame() {
+            switchScreen('game-screen', 'end-screen');
+            document.getElementById('final-player-name').innerText = playerName;
+            document.getElementById('final-score').innerText = score;
+            
+            const finalMsgEl = document.getElementById('final-message');
+            if (score >= 400) {
+                finalMsgEl.innerText = "Xuất sắc! Con là Tư Lệnh Hạm Đội Thập Phân! 🌟";
+                finalMsgEl.className = "mt-4 text-green-400 font-bold text-lg";
+            } else if (score >= 250) {
+                finalMsgEl.innerText = "Làm tốt lắm! Kỹ năng điều hướng của con rất vững! 👍";
+                finalMsgEl.className = "mt-4 text-cyan-400 font-bold text-lg";
+            } else {
+                finalMsgEl.innerText = "Không sao đâu phi hành gia! Hãy ôn tập đổi đơn vị và thử lại nhé! 💪";
+                finalMsgEl.className = "mt-4 text-yellow-400 font-bold text-lg";
+            }
+
+            updateLeaderboard();
+        }
+
+        function updateLeaderboard() {
+            leaderboard.push({ name: playerName, score: score });
+            leaderboard.sort((a, b) => b.score - a.score);
+            const top5 = leaderboard.slice(0, 5);
+
+            const listEl = document.getElementById('leaderboard-list');
+            listEl.innerHTML = "";
+            
+            top5.forEach((player, index) => {
+                const item = document.createElement('div');
+                const isCurrent = player.name === playerName && player.score === score;
+                const bgClass = isCurrent ? "bg-slate-700 border-cyan-400 border-2" : "bg-slate-800 border-slate-600 border";
+                
+                let medal = "🎖️";
+                if(index === 0) medal = "🥇";
+                if(index === 1) medal = "🥈";
+                if(index === 2) medal = "🥉";
+
+                item.className = `flex justify-between items-center p-3 rounded-xl ${bgClass} text-white`;
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">${medal}</span>
+                        <span class="font-bold">${player.name}</span>
+                    </div>
+                    <div class="font-black text-yellow-400">
+                        ${player.score} ⭐
+                    </div>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+    </script>
+</body>
+</html>
